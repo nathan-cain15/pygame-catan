@@ -1,5 +1,6 @@
 import math
 import pygame
+import random
 
 pygame.init()
 root = pygame.display.set_mode((900, 600))
@@ -11,7 +12,6 @@ yellow = (240, 173, 0)
 red = (156, 67, 0)
 grey = (123, 111, 131)
 tan = (243, 192, 114)
-
 
 class Tile:
     def __init__(self, color, x, y):
@@ -52,8 +52,33 @@ def getPoints(tiltAngle, x, y, radius):
         pts.append([int(x), int(y)])
     return pts
 
+def randomColors(numOfLightGreen, numOfDarkGreen, numOfRed, numOfYellow, numOfGrey, numOfTan):
 
-def drawMap2(x, y, sideLength):
+    lst = []
+
+    for i in range(numOfLightGreen):
+        lst.append(lightGreen)
+    for i in range(numOfDarkGreen):
+        lst.append(darkGreen)
+    for i in range(numOfRed):
+        lst.append(red)
+    for i in range(numOfYellow):
+        lst.append(yellow)
+    for i in range(numOfGrey):
+        lst.append(grey)
+    for i in range(numOfTan):
+        lst.append(tan)
+
+    randomList = []
+
+    for i in range(len(lst)):
+        randomColor = random.choice(lst)
+        lst.remove(randomColor)
+        randomList.append(randomColor)
+    return randomList
+
+
+def makeMap(x, y, sideLength):
     tiles = []
     tile = [x, y]
     for i in range(5):
@@ -87,39 +112,27 @@ def drawMap2(x, y, sideLength):
         points = getPoints(11, tile[0], tile[1], sideLength)
         tile = points[3]
 
-    points = getPoints(11, tiles[12][0], tiles[12][1], 41)
+    points = getPoints(11, tiles[12][0], tiles[12][1], sideLength)
     tile = [points[4][0], points[4][1] + sideLength]
     for i in range(3):
         tiles.append(tile)
-        points = getPoints(11, tile[0], tile[1], 41)
+        points = getPoints(11, tile[0], tile[1], sideLength)
         tile = points[3]
 
+    colors = randomColors(4, 4, 3, 4, 4, 1)
+    tilesList = []
+    number = 0
+    for tile in tiles:
+        #drawHexagon(root, colors[random.randint(0, 5)], 11, tile[0], tile[1], sideLength)
+        tilesList.append(Tile(colors[number], tile[0], tile[1]))
+        number += 1
+    return tilesList
 
-
+def drawMap(tiles, sideLength):
     for i in tiles:
-        drawHexagon(root, grey, 11, i[0], i[1], 41)
+        i.draw(root, i.color, 11, i.x, i.y, sideLength)
 
-
-
-def drawMap(x, y, sideLength):
-    coords = []
-    diagonal = math.sqrt(3) * sideLength
-
-    coords.append((x, y))
-    coords.append((x + diagonal, y))
-    coords.append((x + (2 * diagonal), y))
-
-    # x = x - (diagonal/2)
-    # y = int(y + int(1.5(sideLength)))
-    for i in range(5):
-        coords.append((x, y))
-        x += diagonal
-
-    # coords.append(())
-    for i in coords:
-        drawHexagon(root, darkGreen, 11, i[0], i[1], 41)
-
-
+first = True
 run = True
 while run:
     for event in pygame.event.get():
@@ -135,6 +148,9 @@ while run:
     #print(hex)
     #hex2 = drawHexagon(root, darkGreen, 11, 371, 200, 41)
     #print(hex2)
-    drawMap2(50, 100, 60)
+    if first == True:
+        map = makeMap(50, 100, 60)
+        first = False
+    drawMap(map, 60)
 
     pygame.display.flip()
