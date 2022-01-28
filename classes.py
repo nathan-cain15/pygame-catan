@@ -67,10 +67,35 @@ class Edge:
         if (x1-3 <= mouse[0] and mouse[0] <= x2+3 ) and (y1 <= mouse[1] and mouse[1] <= y2) and click[0] == True:
             return True
 
+class Player:
+    def __init__(self, color):
+        self.color = color
+        self.victoryPoints = 0
+        self.roads = []
+        self.buildings = []
 
 
+class Building:
+    def __init__(self, tile, player):
+        self.tile = tile
+        self.player = player
 
+class Road:
+    def __init__(self, edge, player):
+        self.edge = edge
+        self.player = player
 
+class Game:
+    def __init__(self, tiles, edges, vertices, mouse, click):
+        self.tiles = tiles
+        self.edges = edges
+        self.vertices = vertices
+        self.mouse = mouse
+        self.click = click
+
+    def startGame(self, player1, player2, player3, player4):
+        pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
+        player1.buildings.append(Building(pressedVert, player1))
 
 
 

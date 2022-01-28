@@ -1,11 +1,6 @@
 import math
 import random
-
 import pygame
-
-from classes import Edge
-from classes import Tile
-from classes import Vertice
 
 pygame.init()
 root = pygame.display.set_mode((900, 600))
@@ -19,6 +14,119 @@ grey = (123, 111, 131)
 tan = (243, 192, 114)
 white = (249, 238, 225)
 black = (0, 0, 0)
+playerRed = (196, 34, 23)
+playerBlue = (1, 102, 145)
+playerBrown = (161, 106, 92)
+playerOrange = (236, 102, 7)
+
+class Tile:
+    def __init__(self, color, x, y, number, points):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.number = number
+        self.points = points
+
+    def draw(self, surface, color):
+        pts = []
+        for i in self.points:
+            pts.append(i)
+
+        pygame.draw.polygon(surface, color, pts)
+
+    def getThePoints(self, surface, color, tiltAngle, x, y, radius):
+        pts = []
+        for i in range(6):
+            x = x + radius * math.cos(tiltAngle + math.pi * 2 * i / 6)
+            y = y + radius * math.sin(tiltAngle + math.pi * 2 * i / 6)
+            pts.append([int(x), int(y)])
+        return pts
+    def getCenter(self, sidelength):
+        pointX = self.points[1][0]
+        pointY = self.points[0][1] + int(sidelength/2)
+        return [pointX, pointY]
+
+
+class Vertice:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def draw(self, surface, color):
+        pygame.draw.rect(surface, color, (self.x - (self.width / 2), self.y - (self.height / 2), self.width, self.height))
+
+    def pressed(self, mouse, click):
+        if (self.x - (self.width / 2) <= mouse[0] and mouse[0] <= self.x - (self.width / 2) + self.width) and (self.y - (self.height / 2) <= mouse[1] and mouse[1] <= self.y - (self.height / 2) + self.height) and click[0] == True:
+            return True
+        return False
+
+class Edge:
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+    def pressed(self, mouse, click):
+        if self.x1 <= self.x2:
+            x1 = self.x1
+            x2 = self.x2
+        else:
+            x1 = self.x2
+            x2 = self.x1
+        if self.y1 <= self.y2:
+            y1 = self.y1
+            y2 = self.y2
+        else:
+            y1 = self.y2
+            y2 = self.y1
+        if (x1-3 <= mouse[0] and mouse[0] <= x2+3 ) and (y1 <= mouse[1] and mouse[1] <= y2) and click[0] == True:
+            return True
+
+class Player:
+    def __init__(self, color):
+        self.color = color
+        self.victoryPoints = 0
+        self.roads = []
+        self.buildings = []
+
+
+class Building:
+    def __init__(self, tile, player):
+        self.tile = tile
+        self.player = player
+
+class Road:
+    def __init__(self, edge, player):
+        self.edge = edge
+        self.player = player
+
+class Game:
+    def __init__(self, tiles, edges, vertices, mouse, click):
+        self.tiles = tiles
+        self.edges = edges
+        self.vertices = vertices
+        self.mouse = mouse
+        self.click = click
+
+    def startGame(self, players, num):
+        if num == 0:
+            pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
+            if pressedVert != None:
+                players
+
+
+
+        notPressed = True
+        while notPressed:
+            pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
+            if pressedVert != None:
+                notPressed = False
+        player1.buildings.append(Building(pressedVert, player1))
+        print(len(player1.buildings))
+
+
 
 
 def getPoints(tiltAngle, x, y, radius):
@@ -201,16 +309,17 @@ def drawNumbers(tiles, sidelength):
         root.blit(textsurface, (tile.x + (diagonal/2 - 5), tile.y - sidelength + 10))
 
 def verticesPressed(vertices, mouse, click):
-    for i in vertices:
-        clicked = i.pressed(mouse, click)
+    for vert in vertices:
+        clicked = vert.pressed(mouse, click)
         if clicked:
-            print("yes")
+            return vert
+
 
 def edgesPressed(edges, mouse, click):
-    for i in edges:
-        clicked = i.pressed(mouse, click)
+    for edge in edges:
+        clicked = edge.pressed(mouse, click)
         if clicked:
-            print("yes")
+            return edge
 
 def tilePressed(tiles, mouse, click):
     centers = []
@@ -225,12 +334,16 @@ def tilePressed(tiles, mouse, click):
             if distance < shortestDistance:
                 shortestDistance = distance
                 tile = tiles[centers.index(center)]
-        print(tile.color)
+        return tile
 
 
 
 
 
+
+
+
+sideLength = 60
 first = True
 run = True
 while run:
@@ -240,22 +353,29 @@ while run:
             exit()
 
     root.fill(blue)
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
 
-    sideLength = 60
+
     if first == True:
-        tiles = makeTiles(60, 100, sideLength)
+        tiles = makeTiles(-80, 130, sideLength)
         vertices = makeVertices(tiles, 10, 10)
         edges = makeEdges(tiles)
+        player1 = Player(playerBlue)
+        player2 = Player(playerBrown)
+        player3 = Player(playerOrange)
+        player4 = Player(playerRed)
+        game = Game(tiles, edges, vertices, mouse, click)
+        number = 0
         first = False
 
     drawTiles(tiles, sideLength)
     drawNumbers(tiles, sideLength)
-    #drawVertices(vertices)
+    drawVertices(vertices)
     drawEdges(edges)
 
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
+    players = [player1, player2, player3, player4]
 
-    #edgesPressed(edges, mouse, click)
-    tilePressed(tiles, mouse, click)
+
+
     pygame.display.flip()
