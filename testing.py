@@ -48,11 +48,12 @@ class Tile:
 
 
 class Vertice:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, color):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.color = color
 
     def draw(self, surface, color):
         pygame.draw.rect(surface, color, (self.x - (self.width / 2), self.y - (self.height / 2), self.width, self.height))
@@ -63,11 +64,13 @@ class Vertice:
         return False
 
 class Edge:
-    def __init__(self, x1, y1, x2, y2):
+    def __init__(self, x1, y1, x2, y2, color):
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
+        self.color = color
+
     def pressed(self, mouse, click):
         if self.x1 <= self.x2:
             x1 = self.x1
@@ -91,7 +94,6 @@ class Player:
         self.roads = []
         self.buildings = []
 
-
 class Building:
     def __init__(self, tile, player):
         self.tile = tile
@@ -103,29 +105,84 @@ class Road:
         self.player = player
 
 class Game:
-    def __init__(self, tiles, edges, vertices, mouse, click):
+    def __init__(self, tiles, edges, vertices):
         self.tiles = tiles
         self.edges = edges
         self.vertices = vertices
+        self.notAvalVertices = []
+        self.notAvalEdges = []
         self.mouse = mouse
         self.click = click
+        self.states = ["starting turns", "regular turn"]
+        self.currentState = "starting turns"
+        self.substates = ["building", "road"]
+        self.currentSubState = "building"
 
-    def startGame(self, players, num):
-        if num == 0:
-            pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
-            if pressedVert != None:
-                players
+    def placeBuilding(self, player, mouse, click):
+        vertice = verticesPressed(self.vertices, mouse, click)
+        if vertice != None:
+            if vertice not in self.notAvalVertices:
+                player.buildings.append(Building(vertice, player))
+                vertice.color = player.color
+                self.notAvalVertices.append(vertice)
+                return True
+        else:
+            return False
 
+    def placeRoad(self, player, mouse, click):
+        edge = edgesPressed(self.edges, mouse, click)
+        if edge != None:
+            if edge not in self.notAvalEdges:
+                player.roads.append(Road(edge, player))
+                edge.color = player.color
+                self.notAvalEdges.append(edge)
+                return True
+        else:
+            return False
 
+    def drawTiles(self):
+        for tile in self.tiles:
+            tile.draw(root, tile.color)
 
-        notPressed = True
-        while notPressed:
-            pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
-            if pressedVert != None:
-                notPressed = False
-        player1.buildings.append(Building(pressedVert, player1))
-        print(len(player1.buildings))
+    def drawVertices(self):
+        for vertice in self.vertices:
+            vertice.draw(root, vertice.color)
 
+    def drawEdges(self):
+        for edge in self.edges:
+            if edge.x1 - 1 == edge.x2:
+                edge.x1 = edge.x2
+        for edge in edges:
+            if edge.x1 == edge.x2:
+                pygame.draw.polygon(root, edge.color, (
+                (edge.x1 - 2, edge.y1), (edge.x2 - 2, edge.y2), (edge.x2 + 2, edge.y2), (edge.x1 + 2, edge.y1)))
+            else:
+                pygame.draw.polygon(root, edge.color, (
+                (edge.x1 - 3, edge.y1), (edge.x2 - 3, edge.y2), (edge.x2 + 3, edge.y2), (edge.x1 + 3, edge.y1)))
+
+    def roadValid(self, player, road):
+
+class Button:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.width = 0
+        self.height = 0
+
+    def draw(self, surface, color, text, size):
+        #pygame.draw.rect(surface, color, (self.x, self.y, self.width, self.height))
+        font = pygame.font.SysFont('Comic Sans MS', size)
+        textSurface = font.render(text, True, black, white)
+        textRect = textSurface.get_rect()
+        self.width = textRect[2]
+        self.height = textRect[3]
+
+        root.blit(textSurface, (self.x, self.y))
+
+    def pressed(self, mouse, click):
+        if (self.x <= mouse[0] and mouse[0] <= self.x + self.width) and (self.y <= mouse[1] and mouse[1] <= self.y + self.height) and click[0] == True:
+            return True
+        return False
 
 
 
@@ -262,7 +319,7 @@ def makeVertices(tiles, width, height):
                 vertices.append(point)
     verticeList = []
     for vertice in vertices:
-        verticeList.append(Vertice(vertice[0], vertice[1], width, height))
+        verticeList.append(Vertice(vertice[0], vertice[1], width, height, white))
     return verticeList
 
 def makeEdges(tiles):
@@ -276,27 +333,8 @@ def makeEdges(tiles):
                 edges.append([tile.points[i], tile.points[i+1]])
     edgeList = []
     for edge in edges:
-        edgeList.append(Edge(edge[0][0], edge[0][1], edge[1][0], edge[1][1]))
+        edgeList.append(Edge(edge[0][0], edge[0][1], edge[1][0], edge[1][1], white))
     return edgeList
-
-
-def drawTiles(tiles, sideLength):
-    for i in tiles:
-        i.draw(root, i.color)
-
-def drawVertices(vertices):
-    for i in vertices:
-        i.draw(root, white)
-
-def drawEdges(edges):
-    for edge in edges:
-            if edge.x1 - 1 == edge.x2:
-                edge.x1 = edge.x2
-    for edge in edges:
-        if edge.x1 == edge.x2:
-            pygame.draw.polygon(root, white, ((edge.x1 - 2, edge.y1),  (edge.x2 - 2, edge.y2), (edge.x2 + 2, edge.y2), (edge.x1 + 2, edge.y1)))
-        else:
-            pygame.draw.polygon(root, white, ((edge.x1 - 3, edge.y1),  (edge.x2 - 3, edge.y2), (edge.x2 + 3, edge.y2), (edge.x1 + 3, edge.y1)))
 
 def drawNumbers(tiles, sidelength):
     diagonal = math.sqrt(3) * sidelength
@@ -337,12 +375,6 @@ def tilePressed(tiles, mouse, click):
         return tile
 
 
-
-
-
-
-
-
 sideLength = 60
 first = True
 run = True
@@ -361,20 +393,52 @@ while run:
         tiles = makeTiles(-80, 130, sideLength)
         vertices = makeVertices(tiles, 10, 10)
         edges = makeEdges(tiles)
+        game = Game(tiles, edges, vertices)
+
         player1 = Player(playerBlue)
         player2 = Player(playerBrown)
         player3 = Player(playerOrange)
         player4 = Player(playerRed)
-        game = Game(tiles, edges, vertices, mouse, click)
+        players = [player1, player2, player3, player4]
+
+        buildButton = Button(600, 100)
+        roadButton = Button(600, 200)
+
+
         number = 0
+        buildPressed = False
+        roadPressed = False
         first = False
 
-    drawTiles(tiles, sideLength)
+    game.drawTiles()
     drawNumbers(tiles, sideLength)
-    drawVertices(vertices)
-    drawEdges(edges)
+    game.drawEdges()
+    game.drawVertices()
 
-    players = [player1, player2, player3, player4]
+    buildButton.draw(root, white, "build settlement", 20)
+    roadButton.draw(root, white, "build road", 20)
+
+    if buildPressed == False:
+        buildPressed = buildButton.pressed(mouse, click)
+    if roadPressed == False:
+        roadPressed = roadButton.pressed(mouse, click)
+
+    if game.currentState == "starting turns":
+        if game.currentSubState == "building" and buildPressed == True:
+            ran = game.placeBuilding(players[number], mouse, click)
+            if ran:
+                game.currentSubState = "road"
+                buildPressed = False
+        elif game.currentSubState == "road" and roadPressed == True:
+            ran = game.placeRoad(players[number], mouse, click)
+            if ran:
+                game.currentSubState = "building"
+                roadPressed = False
+                if number == 3:
+                    number = 0
+                else:
+                    number += 1
+
 
 
 
