@@ -30,12 +30,41 @@ class Tile:
         return [pointX, pointY]
 
 
+class Tile:
+    def __init__(self, color, x, y, number, points):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.number = number
+        self.points = points
+
+    def draw(self, surface, color):
+        pts = []
+        for i in self.points:
+            pts.append(i)
+
+        pygame.draw.polygon(surface, color, pts)
+
+    def getThePoints(self, surface, color, tiltAngle, x, y, radius):
+        pts = []
+        for i in range(6):
+            x = x + radius * math.cos(tiltAngle + math.pi * 2 * i / 6)
+            y = y + radius * math.sin(tiltAngle + math.pi * 2 * i / 6)
+            pts.append([int(x), int(y)])
+        return pts
+    def getCenter(self, sidelength):
+        pointX = self.points[1][0]
+        pointY = self.points[0][1] + int(sidelength/2)
+        return [pointX, pointY]
+
+
 class Vertice:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, color):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.color = color
 
     def draw(self, surface, color):
         pygame.draw.rect(surface, color, (self.x - (self.width / 2), self.y - (self.height / 2), self.width, self.height))
@@ -43,14 +72,16 @@ class Vertice:
     def pressed(self, mouse, click):
         if (self.x - (self.width / 2) <= mouse[0] and mouse[0] <= self.x - (self.width / 2) + self.width) and (self.y - (self.height / 2) <= mouse[1] and mouse[1] <= self.y - (self.height / 2) + self.height) and click[0] == True:
             return True
-
+        return False
 
 class Edge:
-    def __init__(self, x1, y1, x2, y2):
+    def __init__(self, x1, y1, x2, y2, color):
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
+        self.color = color
+
     def pressed(self, mouse, click):
         if self.x1 <= self.x2:
             x1 = self.x1
@@ -74,28 +105,46 @@ class Player:
         self.roads = []
         self.buildings = []
 
-
-class Building:
-    def __init__(self, tile, player):
-        self.tile = tile
+class Building(Vertice):
+    def __init__(self, x, y, width, height, color, player):
         self.player = player
 
-class Road:
-    def __init__(self, edge, player):
-        self.edge = edge
+        Vertice.__init__(self, x, y, width, height, color)
+
+class Road(Edge):
+    def __init__(self, x1, y1, x2, y2, color, player):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.color = color
         self.player = player
 
-class Game:
-    def __init__(self, tiles, edges, vertices, mouse, click):
-        self.tiles = tiles
-        self.edges = edges
-        self.vertices = vertices
-        self.mouse = mouse
-        self.click = click
+        Edge.__init__(self, x1, y1, x2, y2, color)
 
-    def startGame(self, player1, player2, player3, player4):
-        pressedVert = verticesPressed(self.vertices, self.mouse, self.click)
-        player1.buildings.append(Building(pressedVert, player1))
+
+class Button:
+    def __init__(self, root, x, y):
+        self.root = root
+        self.x = x
+        self.y = y
+        self.width = 0
+        self.height = 0
+
+    def draw(self, color1, color2, text, size):
+        #pygame.draw.rect(surface, color, (self.x, self.y, self.width, self.height))
+        font = pygame.font.SysFont('Comic Sans MS', size)
+        textSurface = font.render(text, True, color1, color2)
+        textRect = textSurface.get_rect()
+        self.width = textRect[2]
+        self.height = textRect[3]
+
+        self.root.blit(textSurface, (self.x, self.y))
+
+    def pressed(self, mouse, click):
+        if (self.x <= mouse[0] and mouse[0] <= self.x + self.width) and (self.y <= mouse[1] and mouse[1] <= self.y + self.height) and click[0] == True:
+            return True
+        return False
 
 
 
