@@ -1,7 +1,8 @@
 import math
 import pygame
 import random
-from classes import *
+from otherclaseses import Building
+from otherclaseses import Road
 
 
 class Game:
@@ -12,17 +13,15 @@ class Game:
         self.vertices = vertices
         self.notAvalVertices = []
         self.notAvalEdges = []
-        self.states = ["starting turns", "regular turn"]
         self.currentState = "starting turns"
-        self.substates = ["building", "road"]
         self.currentSubState = "building"
 
     def placeBuilding(self, player, players, sidelength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
         if vertice != None:
             if (vertice not in self.notAvalVertices) and self.buildingValid(players, vertice, sidelength):
-                player.buildings.append(
-                    Building(vertice.x, vertice.y, vertice.width, vertice.height, vertice.color, player))
+                building = Building(vertice.x, vertice.y, vertice.width, vertice.height, vertice.color, player)
+                player.buildings.append(building)
                 vertice.color = player.color
                 self.notAvalVertices.append(vertice)
                 return True
@@ -90,3 +89,46 @@ class Game:
                         building.y <= build.y + (sidelength + (sidelength/6))):
                     return False
         return True
+
+    def getStartingResources(self, vertice, player):
+        dictionary = {
+            (81, 125, 25): 3,
+            (55, 75, 30): 0,
+            (240, 173, 0): 4,
+            (156, 67, 0): 1,
+            (123, 111, 131): 5,
+        }
+        for tile in self.tiles:
+            for point in tile.points:
+                if (vertice.x >= point[0] -3 and vertice.x <= point[0] + 3) and (vertice.y >= point[1] - 3 and vertice.y <= point[1] + 3):
+                    for i in player.resources:
+                        print(i)
+                    print(player.resources[dictionary[tile.color]])
+                    player.resources[dictionary[tile.color]] += 1
+
+    def giveResources(self, dice, players):
+        num = dice.die1 + dice.die2
+        tilesWithNum = []
+
+        dictionary = {
+            (81, 125, 25): 3,
+            (55, 75, 30): 0,
+            (240, 173, 0): 4,
+            (156, 67, 0): 1,
+            (123, 111, 131): 5,
+        }
+        for tile in self.tiles:
+            if tile.number == num:
+                tilesWithNum.append(tile)
+
+        for tile in tilesWithNum:
+            for point in tile.points:
+                for player in players:
+                    for building in player.buildings:
+                        if (building.x >= point[0] -3 and building.x <= point[0] + 3) and (building.y >= point[1] - 3 and building.y <= point[1] + 3):
+                            player.resources[[tile.color]] += 1
+
+
+
+
+

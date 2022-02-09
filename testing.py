@@ -1,8 +1,9 @@
 import math
 import random
 import pygame
-from classes import *
 from game import *
+from otherclaseses import *
+
 
 pygame.init()
 root = pygame.display.set_mode((900, 600))
@@ -226,13 +227,24 @@ while run:
         player4 = Player(playerRed)
         players = [player1, player2, player3, player4]
 
-        buildButton = Button(root, 600, 100)
-        roadButton = Button(root, 600, 200)
+        buildButton = Button(root, 600, 400)
+        roadButton = Button(root, 600, 500)
+        dice = Dice(root, 500, 500)
+
+        buildPressed = False
+        roadPressed = False
+        dicePressed = False
+
+        display1 = PlayerDisplay(root, 600, 100, player1)
+        display2 = PlayerDisplay(root, 600, 170, player2)
+        display3 = PlayerDisplay(root, 600, 240, player3)
+        display4 = PlayerDisplay(root, 600, 310, player4)
 
 
         number = 0
         buildPressed = False
         roadPressed = False
+        dicePressed = False
         first = False
 
     game.drawTiles()
@@ -242,37 +254,68 @@ while run:
 
     buildButton.draw(black, white, "build settlement", 20)
     roadButton.draw(black, white, "build road", 20)
+    dice.draw(black, white, "roll", 20)
+    dice.drawDice(450, 450, 30, 30, black, white, 20, 60, 0.8)
 
-    if buildPressed == False:
-        buildPressed = buildButton.pressed(mouse, click)
-    if roadPressed == False:
-        roadPressed = roadButton.pressed(mouse, click)
+    display1.draw(30, 30, black, white, 60, 0.8, 20)
+    display2.draw(30, 30, black, white, 60, 0.8, 20)
+    display3.draw(30, 30, black, white, 60, 0.8, 20)
+    display4.draw(30, 30, black, white, 60, 0.8, 20)
+
 
     if game.currentState == "starting turns":
-        if game.currentSubState == "building" and buildPressed == True:
-            ran = game.placeBuilding(players[number], players, sideLength, mouse, click)
-            if ran:
-                game.currentSubState = "road"
-                buildPressed = False
-        elif game.currentSubState == "road" and roadPressed == True:
-            ran = game.placeRoad(players[number], mouse, click)
-            if ran:
-                game.currentSubState = "building"
-                roadPressed = False
-                if number == 3:
-                    number = 0
-                else:
-                    number += 1
-    stuff = []
-    stuff2 = []
-    for i in player1.buildings:
-        stuff.append(i.x)
-        stuff.append(i.y)
-    for i in player1.roads:
-        stuff2.append(i.x1)
-        stuff2.append(i.y1)
-        stuff2.append(i.x2)
-        stuff2.append(i.y2)
+        if game.currentSubState == "building":
+            if buildPressed == False:
+                buildPressed = buildButton.pressed(mouse, click)
+            if buildPressed:
+                ran = game.placeBuilding(players[number], players, sideLength, mouse, click)
+
+                if ran:
+                    if len(players[number].buildings) == 2:
+                        game.getStartingResources(players[number].buildings[1], players[number])
+                    game.currentSubState = "road"
+                    buildPressed = False
+
+        elif game.currentSubState == "road":
+            if roadPressed == False:
+                roadPressed = roadButton.pressed(mouse, click)
+
+            if roadPressed:
+                ran = game.placeRoad(players[number], mouse, click)
+                if ran:
+                    game.currentSubState = "building"
+                    if len(players[0].roads) == 2:
+                        game.currentState = "regular turn"
+                        game.currentSubState = "roll"
+
+                    roadPressed = False
+                    if number == 3 and len(players[number].buildings) == 1:
+                        number = number
+                    elif len(players[number].buildings) == 2:
+                        number -= 1
+                    else:
+                        number += 1
+
+    print(number == 3 and players[3].buildings == 2)
+    print(game.currentState)
+    print(game.currentSubState)
+    if game.currentState == "regular turn":
+        if game.currentSubState == "roll":
+            if dicePressed == False:
+                dicePressed = dice.pressed(mouse, click)
+
+            if dicePressed:
+                dice.roll()
+                game.giveResources(dice, players)
+                game.currentSubState == "next lol"
+
+        elif game.currentSubState == "build":
+            pass
+
+
+
+
+
 
 
 
