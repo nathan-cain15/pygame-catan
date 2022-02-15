@@ -38,6 +38,7 @@ class Vertice:
         self.width = width
         self.height = height
         self.color = color
+        self.isCity = False
 
     def draw(self, surface, color):
         pygame.draw.rect(surface, color, (self.x - (self.width / 2), self.y - (self.height / 2), self.width, self.height))
@@ -77,6 +78,7 @@ class Player:
         self.victoryPoints = 0
         self.roads = []
         self.buildings = []
+        self.cities = []
         self.resources = [0, 0, 0, 0, 0]
 
 
@@ -176,5 +178,5 @@ class Dice(Button):
         self.root.blit(textSurface, (x + space + (width / 3), y))
 
     def roll(self):
-        self.die1 = random.choice(range(1, 6))
-        self.die2 = random.choice(range(1, 6))
+        self.die1 = random.choice(range(1, 7))
+        self.die2 = random.choice(range(1, 7))

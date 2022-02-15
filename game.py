@@ -71,6 +71,19 @@ class Game:
         else:
             return False
 
+    def buildCity(self, player, mouse, click):
+        building = self.verticesPressed(mouse, click)
+
+        if building != None:# and player.resources[3] >= 2 and player.resources[4] >= 3:
+            for settlement in player.buildings:
+                if building.x == settlement.x and building.y == settlement.y:
+                    player.cities.append(settlement)
+                    player.buildings.remove(settlement)
+                    building.isCity = True
+                    return True
+        else:
+            return False
+
     def drawTiles(self):
         for tile in self.tiles:
             tile.draw(self.root, tile.color)
@@ -78,6 +91,8 @@ class Game:
     def drawVertices(self):
         for vertice in self.vertices:
             vertice.draw(self.root, vertice.color)
+            if vertice.isCity:
+                pygame.draw.circle(self.root, (0, 0, 0), (vertice.x, vertice.y), 2)
 
     def drawEdges(self):
         for edge in self.edges:
@@ -105,11 +120,22 @@ class Game:
 
     def roadValid(self, player, road):
         for building in player.buildings:
-            if ((road.x1 >= building.x - 3 and road.x1 <= building.x) and (
-                    road.y1 >= building.y - 3 and road.y1 <= building.y)) or (
-                    (road.x2 >= building.x - 3 and road.x2 <= building.x) and (
-                    road.y2 >= building.y - 3 and road.y2 <= building.y)):
+            if ((building.x - 3 <= road.x1 <= building.x) and (
+                    building.y - 3 <= road.y1 <= building.y)) or (
+                    (building.x - 3 <= road.x2 <= building.x) and (
+                    building.y - 3 <= road.y2 <= building.y)):
                 return True
+        for playerRoad in player.roads:
+            if ((playerRoad.x1 - 5 <= road.x1 <= playerRoad.x1 + 5) and (
+                    playerRoad.y1 - 5 <= road.y1 <= playerRoad.y1 + 5)) or (
+                    (playerRoad.x2 - 5 <= road.x1 <= playerRoad.x2 + 5) and (
+                    playerRoad.y2 - 5 <= road.y1 <= playerRoad.y2 + 5)) or (
+                    (playerRoad.x1 - 5 <= road.x2 <= playerRoad.x1 + 5) and (
+                    playerRoad.y1 - 5 <= road.y2 <= playerRoad.y1 + 5)) or (
+                    (playerRoad.x2 - 5 <= road.x2 <= playerRoad.x2 + 5) and (
+                    playerRoad.y2 - 5 <= road.y2 <= playerRoad.y2 + 5)):
+                return True
+
         return False
 
     def buildingValid(self, players, building, sidelength):
@@ -135,7 +161,7 @@ class Game:
                 if (vertice.x >= point[0] -3 and vertice.x <= point[0] + 3) and (vertice.y >= point[1] - 3 and vertice.y <= point[1] + 3):
 
                     if tile.color != (243, 192, 114):
-                        print(player.resources[dictionary[tile.color]])
+
                         player.resources[dictionary[tile.color]] += 1
 
     def giveResources(self, dice, players):
@@ -158,9 +184,12 @@ class Game:
                 for player in players:
                     for building in player.buildings:
                         if (building.x >= point[0] -3 and building.x <= point[0] + 3) and (building.y >= point[1] - 3 and building.y <= point[1] + 3):
-                            print(player.resources[dictionary[tile.color]])
-                            print(player.resources[1])
                             player.resources[dictionary[tile.color]] += 1
+
+                    for city in player.cities:
+                        if (city.x >= point[0] -3 and city.x <= point[0] + 3) and (city.y >= point[1] - 3 and city.y <= point[1] + 3):
+                            player.resources[dictionary[tile.color]] += 2
+
 
 
 

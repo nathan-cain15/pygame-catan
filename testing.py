@@ -243,6 +243,7 @@ while run:
         buildPressed = False
         roadPressed = False
         dicePressed = False
+        buildCityPressed = False
         endTurnPressed = False
         first = False
 
@@ -302,8 +303,7 @@ while run:
                         number += 1
 
 
-    print(game.currentState)
-    print(game.currentSubState)
+
     if game.currentState == "regular turn":
         if game.currentSubState == "roll":
             if dicePressed == False:
@@ -318,7 +318,6 @@ while run:
         elif game.currentSubState == "turn":
             if buildPressed == False:
                 buildPressed = buildButton.pressed(mouse, click)
-
             if buildButton:
                 pass
                 ran = game.buildBuilding(players[number], players, sideLength, mouse, click)
@@ -327,15 +326,21 @@ while run:
 
             if roadPressed == False:
                 roadPressed = roadButton.pressed(mouse, click)
-
             if roadPressed:
                 ran = game.buildRoad(players[number], mouse, click)
                 if ran:
                     roadPressed = False
 
+            if buildCityPressed == False:
+                buildCityPressed = buildCityButton.pressed(mouse, click)
+            if buildCityPressed:
+                ran = game.buildCity(players[number], mouse, click)
+                if ran:
+                    buildCityPressed = False
+
+
             if endTurnPressed == False:
                 endTurnPressed = endTurnButton.pressed(mouse, click)
-
             if endTurnPressed:
                 if number == 3:
                     number = 0
@@ -343,11 +348,12 @@ while run:
                     number += 1
                 game.currentSubState = "roll"
                 endTurnPressed = False
+                buildPressed = False
+                roadPressed = False
+                buildCityPressed = False
 
 
-
-    print(number)
-
+    #print(buildCityPressed)
 
 
 
