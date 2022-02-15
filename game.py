@@ -16,14 +16,16 @@ class Game:
         self.currentState = "starting turns"
         self.currentSubState = "building"
 
-    def placeBuilding(self, player, players, sidelength, mouse, click):
+    def placeBuilding(self, player, players, sideLength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
         if vertice != None:
-            if (vertice not in self.notAvalVertices) and self.buildingValid(players, vertice, sidelength):
+            if (vertice not in self.notAvalVertices) and self.buildingValid(players, vertice, sideLength):
                 building = Building(vertice.x, vertice.y, vertice.width, vertice.height, vertice.color, player)
                 player.buildings.append(building)
                 vertice.color = player.color
                 self.notAvalVertices.append(vertice)
+
+                player.victoryPoints += 1
                 return True
         else:
             return False
@@ -35,6 +37,36 @@ class Game:
                 player.roads.append(Road(edge.x1, edge.y1, edge.x2, edge.y2, edge.color, player))
                 edge.color = player.color
                 self.notAvalEdges.append(edge)
+                return True
+        else:
+            return False
+
+    def buildBuilding(self, player, players, sideLength, mouse, click):
+        vertice = self.verticesPressed(mouse, click)
+        if vertice != None:
+            if (vertice not in self.notAvalVertices) and self.buildingValid(players, vertice, sideLength) and player.resources[0] >= 1 and player.resources[1] >= 1 and player.resources[2] >= 1 and player.resources[3] >= 1:
+                building = Building(vertice.x, vertice.y, vertice.width, vertice.height, vertice.color, player)
+                player.buildings.append(building)
+                vertice.color = player.color
+                self.notAvalVertices.append(vertice)
+
+                player.victoryPoints += 1
+                for i in range(4):
+                    player.resources[i] -= 1
+                return True
+        else:
+            return False
+
+    def buildRoad(self, player, mouse, click):
+        edge = self.edgesPressed(mouse, click)
+        if edge != None:
+            if edge not in self.notAvalEdges and self.roadValid(player, edge) and player.resources[0] >= 1 and player.resources[1] >= 1:
+                player.roads.append(Road(edge.x1, edge.y1, edge.x2, edge.y2, edge.color, player))
+                edge.color = player.color
+                self.notAvalEdges.append(edge)
+
+                player.resources[0] -= 1
+                player.resources[1] -= 1
                 return True
         else:
             return False
@@ -92,30 +124,30 @@ class Game:
 
     def getStartingResources(self, vertice, player):
         dictionary = {
-            (81, 125, 25): 3,
             (55, 75, 30): 0,
-            (240, 173, 0): 4,
             (156, 67, 0): 1,
-            (123, 111, 131): 5,
+            (81, 125, 25): 2,
+            (240, 173, 0): 3,
+            (123, 111, 131): 4,
         }
         for tile in self.tiles:
             for point in tile.points:
                 if (vertice.x >= point[0] -3 and vertice.x <= point[0] + 3) and (vertice.y >= point[1] - 3 and vertice.y <= point[1] + 3):
-                    for i in player.resources:
-                        print(i)
-                    print(player.resources[dictionary[tile.color]])
-                    player.resources[dictionary[tile.color]] += 1
+
+                    if tile.color != (243, 192, 114):
+                        print(player.resources[dictionary[tile.color]])
+                        player.resources[dictionary[tile.color]] += 1
 
     def giveResources(self, dice, players):
         num = dice.die1 + dice.die2
         tilesWithNum = []
 
         dictionary = {
-            (81, 125, 25): 3,
             (55, 75, 30): 0,
-            (240, 173, 0): 4,
             (156, 67, 0): 1,
-            (123, 111, 131): 5,
+            (81, 125, 25): 2,
+            (240, 173, 0): 3,
+            (123, 111, 131): 4,
         }
         for tile in self.tiles:
             if tile.number == num:
@@ -126,7 +158,9 @@ class Game:
                 for player in players:
                     for building in player.buildings:
                         if (building.x >= point[0] -3 and building.x <= point[0] + 3) and (building.y >= point[1] - 3 and building.y <= point[1] + 3):
-                            player.resources[[tile.color]] += 1
+                            print(player.resources[dictionary[tile.color]])
+                            print(player.resources[1])
+                            player.resources[dictionary[tile.color]] += 1
 
 
 

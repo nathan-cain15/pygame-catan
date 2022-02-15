@@ -124,7 +124,7 @@ class PlayerDisplay:
         self.y = y
         self.player = player
 
-    def draw(self, width, height, textColor, boxColor, spacing, ratio, fontSize):
+    def draw(self, width, height, textColor, boxColor, spacing, ratio, fontSize, turnTrue):
         font = pygame.font.SysFont('Comic Sans MS', fontSize)
 
         materials = [self.player.resources[0], self.player.resources[1], self.player.resources[2], self.player.resources[3], self.player.resources[4]]
@@ -143,6 +143,9 @@ class PlayerDisplay:
             self.root.blit(text, (int(self.x + space + (width - rect[2]) / 2), self.y + height - 5))
 
             space += spacing
+
+        if turnTrue:
+            pygame.draw.circle(self.root, self.player.color, (self.x - int(spacing / 2), self.y + int(height/2)), int(width / 2))
 
 class Dice(Button):
     def __init__(self, root, x, y):

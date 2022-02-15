@@ -30,34 +30,6 @@ class Tile:
         return [pointX, pointY]
 
 
-class Tile:
-    def __init__(self, color, x, y, number, points):
-        self.color = color
-        self.x = x
-        self.y = y
-        self.number = number
-        self.points = points
-
-    def draw(self, surface, color):
-        pts = []
-        for i in self.points:
-            pts.append(i)
-
-        pygame.draw.polygon(surface, color, pts)
-
-    def getThePoints(self, surface, color, tiltAngle, x, y, radius):
-        pts = []
-        for i in range(6):
-            x = x + radius * math.cos(tiltAngle + math.pi * 2 * i / 6)
-            y = y + radius * math.sin(tiltAngle + math.pi * 2 * i / 6)
-            pts.append([int(x), int(y)])
-        return pts
-    def getCenter(self, sidelength):
-        pointX = self.points[1][0]
-        pointY = self.points[0][1] + int(sidelength/2)
-        return [pointX, pointY]
-
-
 class Vertice:
     def __init__(self, x, y, width, height, color):
         self.x = x
@@ -145,6 +117,7 @@ class Button:
         if (self.x <= mouse[0] and mouse[0] <= self.x + self.width) and (self.y <= mouse[1] and mouse[1] <= self.y + self.height) and click[0] == True:
             return True
         return False
+
 
 
 

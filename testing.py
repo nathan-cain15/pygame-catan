@@ -228,12 +228,10 @@ while run:
         players = [player1, player2, player3, player4]
 
         buildButton = Button(root, 600, 400)
-        roadButton = Button(root, 600, 500)
+        roadButton = Button(root, 600, 450)
+        endTurnButton = Button(root, 600, 500)
+        buildCityButton = Button(root, 700, 450)
         dice = Dice(root, 500, 500)
-
-        buildPressed = False
-        roadPressed = False
-        dicePressed = False
 
         display1 = PlayerDisplay(root, 600, 100, player1)
         display2 = PlayerDisplay(root, 600, 170, player2)
@@ -245,7 +243,11 @@ while run:
         buildPressed = False
         roadPressed = False
         dicePressed = False
+        endTurnPressed = False
         first = False
+
+    turnTrue = [False, False, False, False]
+    turnTrue[number] = True
 
     game.drawTiles()
     drawNumbers(tiles, sideLength)
@@ -254,13 +256,15 @@ while run:
 
     buildButton.draw(black, white, "build settlement", 20)
     roadButton.draw(black, white, "build road", 20)
+    buildCityButton.draw(black, white, "build city", 20)
+    endTurnButton.draw(black, white, "end turn", 20)
     dice.draw(black, white, "roll", 20)
-    dice.drawDice(450, 450, 30, 30, black, white, 20, 60, 0.8)
+    dice.drawDice(470, 450, 30, 30, black, white, 20, 60, 0.8)
 
-    display1.draw(30, 30, black, white, 60, 0.8, 20)
-    display2.draw(30, 30, black, white, 60, 0.8, 20)
-    display3.draw(30, 30, black, white, 60, 0.8, 20)
-    display4.draw(30, 30, black, white, 60, 0.8, 20)
+    display1.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[0])
+    display2.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[1])
+    display3.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[2])
+    display4.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[3])
 
 
     if game.currentState == "starting turns":
@@ -287,6 +291,7 @@ while run:
                     if len(players[0].roads) == 2:
                         game.currentState = "regular turn"
                         game.currentSubState = "roll"
+                        continue
 
                     roadPressed = False
                     if number == 3 and len(players[number].buildings) == 1:
@@ -296,7 +301,7 @@ while run:
                     else:
                         number += 1
 
-    print(number == 3 and players[3].buildings == 2)
+
     print(game.currentState)
     print(game.currentSubState)
     if game.currentState == "regular turn":
@@ -307,14 +312,41 @@ while run:
             if dicePressed:
                 dice.roll()
                 game.giveResources(dice, players)
-                game.currentSubState == "next lol"
+                game.currentSubState = "turn"
+                dicePressed = False
 
-        elif game.currentSubState == "build":
-            pass
+        elif game.currentSubState == "turn":
+            if buildPressed == False:
+                buildPressed = buildButton.pressed(mouse, click)
+
+            if buildButton:
+                pass
+                ran = game.buildBuilding(players[number], players, sideLength, mouse, click)
+                if ran:
+                    buildPressed = False
+
+            if roadPressed == False:
+                roadPressed = roadButton.pressed(mouse, click)
+
+            if roadPressed:
+                ran = game.buildRoad(players[number], mouse, click)
+                if ran:
+                    roadPressed = False
+
+            if endTurnPressed == False:
+                endTurnPressed = endTurnButton.pressed(mouse, click)
+
+            if endTurnPressed:
+                if number == 3:
+                    number = 0
+                else:
+                    number += 1
+                game.currentSubState = "roll"
+                endTurnPressed = False
 
 
 
-
+    print(number)
 
 
 
