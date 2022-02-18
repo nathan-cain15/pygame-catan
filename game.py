@@ -1,8 +1,8 @@
 import math
 import pygame
 import random
-from otherclaseses import Building
-from otherclaseses import Road
+from otherclaseses import *
+
 
 
 class Game:
@@ -15,6 +15,7 @@ class Game:
         self.notAvalEdges = []
         self.currentState = "starting turns"
         self.currentSubState = "building"
+        self.robber = None
 
     def placeBuilding(self, player, players, sideLength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
@@ -118,6 +119,21 @@ class Game:
             if clicked:
                 return edge
 
+    def tilePressed(self, mouse, click):
+        centers = []
+        for tile in self.tiles:
+            centers.append(tile.getCenter(60))
+        if click[0] == True:
+            shortestDistance = 1000
+            for center in centers:
+                distanceX = abs(center[0] - mouse[0])
+                distanceY = abs(center[1] - mouse[1])
+                distance = math.sqrt(distanceX ** 2 + distanceY ** 2)
+                if distance < shortestDistance:
+                    shortestDistance = distance
+                    pressedTile = self.tiles[centers.index(center)]
+            return pressedTile
+
     def roadValid(self, player, road):
         for building in player.buildings:
             if ((building.x - 3 <= road.x1 <= building.x) and (
@@ -189,6 +205,13 @@ class Game:
                     for city in player.cities:
                         if (city.x >= point[0] -3 and city.x <= point[0] + 3) and (city.y >= point[1] - 3 and city.y <= point[1] + 3):
                             player.resources[dictionary[tile.color]] += 2
+
+    def setRobber(self):
+        for tile in self.tiles:
+            if tile.color == (243, 192, 114):
+                self.robber = Robber(tile, self.root)
+
+
 
 
 

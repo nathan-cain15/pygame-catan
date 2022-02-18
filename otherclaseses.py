@@ -180,3 +180,13 @@ class Dice(Button):
     def roll(self):
         self.die1 = random.choice(range(1, 7))
         self.die2 = random.choice(range(1, 7))
+
+
+class Robber:
+    def __init__(self, tile, surface):
+        self.tile = tile
+        self.surface = surface
+
+    def draw(self, sidelength, radius):
+        diagonal = math.sqrt(3) * sidelength
+        pygame.draw.circle(self.surface, (10, 10, 10), (self.tile.x + int(diagonal/2), self.tile.y - int(sidelength/2)), radius)

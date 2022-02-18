@@ -185,20 +185,6 @@ def drawNumbers(tiles, sidelength):
         textsurface = myfont.render(num, False, (0, 0, 0))
         root.blit(textsurface, (tile.x + (diagonal/2 - 5), tile.y - sidelength + 10))
 
-def tilePressed(tiles, mouse, click):
-    centers = []
-    for i in tiles:
-        centers.append(i.getCenter(60))
-    if click[0] == True:
-        shortestDistance = 1000
-        for center in centers:
-            distanceX = abs(center[0] - mouse[0])
-            distanceY = abs(center[1] - mouse[1])
-            distance = math.sqrt(distanceX**2 + distanceY**2)
-            if distance < shortestDistance:
-                shortestDistance = distance
-                tile = tiles[centers.index(center)]
-        return tile
 
 
 sideLength = 60
@@ -220,6 +206,7 @@ while run:
         vertices = makeVertices(tiles, 10, 10)
         edges = makeEdges(tiles)
         game = Game(root, tiles, edges, vertices)
+        game.setRobber()
 
         player1 = Player(playerBlue)
         player2 = Player(playerBrown)
@@ -245,6 +232,7 @@ while run:
         dicePressed = False
         buildCityPressed = False
         endTurnPressed = False
+        tilePressed = None
         first = False
 
     turnTrue = [False, False, False, False]
@@ -254,6 +242,9 @@ while run:
     drawNumbers(tiles, sideLength)
     game.drawEdges()
     game.drawVertices()
+
+    if game.robber.tile != None:
+        game.robber.draw(sideLength, 15)
 
     buildButton.draw(black, white, "build settlement", 20)
     roadButton.draw(black, white, "build road", 20)
@@ -311,6 +302,12 @@ while run:
 
             if dicePressed:
                 dice.roll()
+                if dice.die1 + dice.die2 == 7:
+                    game.currentSubState = "move robber"
+                    game.robber.tile = None
+                    dicePressed = False
+                    click[0] = False
+                    continue
                 game.giveResources(dice, players)
                 game.currentSubState = "turn"
                 dicePressed = False
@@ -352,8 +349,18 @@ while run:
                 roadPressed = False
                 buildCityPressed = False
 
+        elif game.currentSubState == "move robber":
+            if tilePressed == None:
+                tilePressed = game.tilePressed(mouse, click)
+                print(tilePressed)
 
-    #print(buildCityPressed)
+            if tilePressed != None:
+                print("check1")
+                game.robber.tile = tilePressed
+                tilePressed = None
+                game.currentSubState = "turn"
+
+
 
 
 
