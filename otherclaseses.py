@@ -119,35 +119,41 @@ class Button:
         return False
 
 class PlayerDisplay:
-    def __init__(self, root, x, y, player):
+    def __init__(self, root, x, y, width, height, spacing, player):
         self.player = player
         self.root = root
         self.x = x
         self.y = y
+        self.width = width
+        self.height = height
+        self.spacing = spacing
         self.player = player
 
-    def draw(self, width, height, textColor, boxColor, spacing, ratio, fontSize, turnTrue):
+    def draw(self, boxColor, ratio, fontSize, turnTrue):
         font = pygame.font.SysFont('Comic Sans MS', fontSize)
 
         materials = [self.player.resources[0], self.player.resources[1], self.player.resources[2], self.player.resources[3], self.player.resources[4]]
-        words = ["wood", "brick", "sheep", "wheat", "ore"]
+        colors = [(55, 75, 30), (156, 67, 0), (81, 125, 25), (240, 173, 0), (123, 111, 131)]
         space = 0
-
         for i in range(5):
-            pygame.draw.rect(self.root, self.player.color, (self.x + space, self.y, width, height))
-            pygame.draw.rect(self.root, boxColor, (self.x + space + int((width - (ratio * width)) / 2), self.y + int((height - (ratio * height)) / 2), int(width * ratio), int(height * ratio)))
+            pygame.draw.rect(self.root, self.player.color, (self.x + space, self.y, self.width, self.height))
+            pygame.draw.rect(self.root, boxColor, (self.x + space + int((self.width - (ratio * self.width)) / 2), self.y + int((self.height - (ratio * self.height)) / 2), int(self.width * ratio), int(self.height * ratio)))
 
-            number = font.render(str(materials[i]), False, textColor)
-            self.root.blit(number, (self.x + space + (width / 3), self.y))
-
-            text = font.render(words[i], False, textColor)
-            rect = text.get_rect()
-            self.root.blit(text, (int(self.x + space + (width - rect[2]) / 2), self.y + height - 5))
-
-            space += spacing
+            number = font.render(str(materials[i]), False, colors[i])
+            self.root.blit(number, (self.x + space + (self.width / 3), self.y))
+            space += self.spacing
 
         if turnTrue:
-            pygame.draw.circle(self.root, self.player.color, (self.x - int(spacing / 2), self.y + int(height/2)), int(width / 2))
+            pygame.draw.circle(self.root, (0, 0, 0), (self.x - int(self.spacing / 2), self.y + int(self.height/2)), int(self.width / 2) + 2)
+        pygame.draw.circle(self.root, self.player.color, (self.x - int(self.spacing / 2), self.y + int(self.height / 2)), int(self.width / 2))
+
+    def pressed(self, mouse, click):
+        if click[0] == True:
+            space = 0
+            for i in range(5):
+                if self.x + space <= mouse[0] <= self.x + space + self.width and self.y <= mouse[1] <= self.y + self.height:
+                    return i
+                space += self.spacing
 
 class Dice(Button):
     def __init__(self, root, x, y):

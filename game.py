@@ -192,7 +192,7 @@ class Game:
             (123, 111, 131): 4,
         }
         for tile in self.tiles:
-            if tile.number == num:
+            if tile.number == num and self.robber.tile != tile:
                 tilesWithNum.append(tile)
 
         for tile in tilesWithNum:
@@ -211,10 +211,29 @@ class Game:
             if tile.color == (243, 192, 114):
                 self.robber = Robber(tile, self.root)
 
+    def checkResources(self, players):
+        for player in players:
+            resourceAmount = 0
+            for resource in player.resources:
+                resourceAmount += resource
+            if resourceAmount > 7:
+                halfOfResources = int(resourceAmount/2)
 
+                while halfOfResources != 0:
 
+                    while True:
+                        randomNum = random.choice(range(0, 5))
+                        if player.resources[randomNum] != 0:
+                            break
 
+                    player.resources[randomNum] -= 1
+                    halfOfResources -= 1
 
-
-
+    def displayPressed(self, mouse, click, displays, number):
+        for display in displays:
+            if displays[number] == display:
+                continue
+            pressedResource = display.pressed(mouse, click)
+            if pressedResource != None:
+                return display, pressedResource
 

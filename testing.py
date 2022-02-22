@@ -214,17 +214,19 @@ while run:
         player4 = Player(playerRed)
         players = [player1, player2, player3, player4]
 
-        buildButton = Button(root, 600, 400)
-        roadButton = Button(root, 600, 450)
-        endTurnButton = Button(root, 600, 500)
-        buildCityButton = Button(root, 700, 450)
-        dice = Dice(root, 500, 500)
+        buildButton = Button(root, 550, 400)
+        roadButton = Button(root, 550, 450)
+        endTurnButton = Button(root, 550, 500)
+        buildCityButton = Button(root, 650, 450)
+        dice = Dice(root, 650, 500)
+        tradeButton = Button(root, 720, 400)
 
-        display1 = PlayerDisplay(root, 600, 100, player1)
-        display2 = PlayerDisplay(root, 600, 170, player2)
-        display3 = PlayerDisplay(root, 600, 240, player3)
-        display4 = PlayerDisplay(root, 600, 310, player4)
+        display1 = PlayerDisplay(root, 600, 100, 30, 30, 45, player1)
+        display2 = PlayerDisplay(root, 600, 170, 30, 30, 45, player2)
+        display3 = PlayerDisplay(root, 600, 240, 30, 30, 45, player3)
+        display4 = PlayerDisplay(root, 600, 310, 30, 30, 45, player4)
 
+        playerDisplays = [display1, display2, display3, display4]
 
         number = 0
         buildPressed = False
@@ -232,7 +234,11 @@ while run:
         dicePressed = False
         buildCityPressed = False
         endTurnPressed = False
+        tradePressed = False
         tilePressed = None
+        playerDisplayPressed = None
+        secondBool = False
+
         first = False
 
     turnTrue = [False, False, False, False]
@@ -250,13 +256,15 @@ while run:
     roadButton.draw(black, white, "build road", 20)
     buildCityButton.draw(black, white, "build city", 20)
     endTurnButton.draw(black, white, "end turn", 20)
+    tradeButton.draw(black, white, "trade", 20)
     dice.draw(black, white, "roll", 20)
-    dice.drawDice(470, 450, 30, 30, black, white, 20, 60, 0.8)
+    dice.drawDice(700, 500, 30, 30, black, white, 20, 60, 0.8)
 
-    display1.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[0])
-    display2.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[1])
-    display3.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[2])
-    display4.draw(30, 30, black, white, 60, 0.8, 20, turnTrue[3])
+
+    display1.draw(white, 0.8, 20, turnTrue[0])
+    display2.draw(white, 0.8, 20, turnTrue[1])
+    display3.draw(white, 0.8, 20, turnTrue[2])
+    display4.draw(white, 0.8, 20, turnTrue[3])
 
 
     if game.currentState == "starting turns":
@@ -294,7 +302,6 @@ while run:
                         number += 1
 
 
-
     if game.currentState == "regular turn":
         if game.currentSubState == "roll":
             if dicePressed == False:
@@ -306,7 +313,7 @@ while run:
                     game.currentSubState = "move robber"
                     game.robber.tile = None
                     dicePressed = False
-                    click[0] = False
+
                     continue
                 game.giveResources(dice, players)
                 game.currentSubState = "turn"
@@ -335,6 +342,11 @@ while run:
                 if ran:
                     buildCityPressed = False
 
+            if tradePressed == False:
+                tradePressed = tradeButton.pressed(mouse, click)
+            if tradePressed:
+                game.currentSubState = "trading"
+                tradePressed = False
 
             if endTurnPressed == False:
                 endTurnPressed = endTurnButton.pressed(mouse, click)
@@ -350,17 +362,64 @@ while run:
                 buildCityPressed = False
 
         elif game.currentSubState == "move robber":
-            if tilePressed == None:
+            if tilePressed == None and mouse[0] <= 550:
                 tilePressed = game.tilePressed(mouse, click)
-                print(tilePressed)
 
             if tilePressed != None:
-                print("check1")
                 game.robber.tile = tilePressed
+                game.checkResources(players)
                 tilePressed = None
-                game.currentSubState = "turn"
+                game.currentSubState = "pick resource"
+        elif game.currentSubState == "pick resource":
+            if playerDisplayPressed == None:
+                playerDisplayPressed = game.displayPressed(mouse, click, playerDisplays, number)
 
 
+            if playerDisplayPressed != None:
+                if playerDisplayPressed[0].player.resources[playerDisplayPressed[1]] >= 1:
+                    playerDisplayPressed[0].player.resources[playerDisplayPressed[1]] -= 1
+                    players[number].resources[playerDisplayPressed[1]] += 1
+                    game.currentSubState = "turn"
+                    playerDisplayPressed = None
+                else:
+                    playerDisplayPressed = None
+                    continue
+        elif game.currentSubState == "trading":
+            #if tradePressed == False:
+            #    tradePressed = tradeButton.pressed(mouse, click)
+            #if tradePressed:
+            #    game.currentSubState = "turn"
+            #    tradePressed = False
+
+            if playerDisplayPressed == None:
+                playerDisplayPressed = playerDisplays[number].pressed(mouse, click)
+
+            if playerDisplayPressed != None and secondBool != True:
+                if players[number].resources[playerDisplayPressed] >= 4:
+                    players[number].resources[playerDisplayPressed] -= 4
+                    ran = None
+                    secondBool = True
+                else:
+                     playerDisplayPressed = None
+
+            if ran == None:
+                ran = playerDisplays[number].pressed(mouse, click)
+            print(playerDisplayPressed)
+            print(ran)
+
+            if ran != None and ran != False:
+                if ran != playerDisplayPressed:
+                    players[number].resources[ran] += 1
+                    game.currentSubState = "turn"
+                    ran = False
+                else:
+                    ran = None
+
+
+
+
+
+    #print(game.currentSubState)
 
 
 
