@@ -220,6 +220,7 @@ while run:
         buildCityButton = Button(root, 650, 450)
         dice = Dice(root, 650, 500)
         tradeButton = Button(root, 720, 400)
+        cancelButton = Button(root, 780, 400)
 
         display1 = PlayerDisplay(root, 600, 100, 30, 30, 45, player1)
         display2 = PlayerDisplay(root, 600, 170, 30, 30, 45, player2)
@@ -238,6 +239,8 @@ while run:
         tilePressed = None
         playerDisplayPressed = None
         secondBool = False
+        ran = False
+        cancelPressed = False
 
         first = False
 
@@ -347,6 +350,8 @@ while run:
             if tradePressed:
                 game.currentSubState = "trading"
                 tradePressed = False
+                ran = False
+                playerDisplayPressed = None
 
             if endTurnPressed == False:
                 endTurnPressed = endTurnButton.pressed(mouse, click)
@@ -385,13 +390,14 @@ while run:
                     playerDisplayPressed = None
                     continue
         elif game.currentSubState == "trading":
-            #if tradePressed == False:
-            #    tradePressed = tradeButton.pressed(mouse, click)
-            #if tradePressed:
-            #    game.currentSubState = "turn"
-            #    tradePressed = False
+            cancelButton.draw(black, white, "cancel", 20)
+            if cancelPressed == False:
+                cancelPressed = cancelButton.pressed(mouse, click)
+            if cancelPressed:
+                game.currentSubState = "turn"
+                cancelPressed = False
 
-            if playerDisplayPressed == None:
+            if playerDisplayPressed == None and secondBool != True:
                 playerDisplayPressed = playerDisplays[number].pressed(mouse, click)
 
             if playerDisplayPressed != None and secondBool != True:
@@ -402,18 +408,23 @@ while run:
                 else:
                      playerDisplayPressed = None
 
-            if ran == None:
+            if ran == None and secondBool == True:
                 ran = playerDisplays[number].pressed(mouse, click)
-            print(playerDisplayPressed)
-            print(ran)
+                print("check 1")
 
-            if ran != None and ran != False:
+            if ran != None and secondBool == True:
                 if ran != playerDisplayPressed:
                     players[number].resources[ran] += 1
+                    print("check 2")
                     game.currentSubState = "turn"
                     ran = False
+                    playerDisplayPressed = None
+                    secondBool = False
                 else:
                     ran = None
+                    print("check 3")
+
+
 
 
 
