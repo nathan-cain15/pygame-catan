@@ -115,6 +115,7 @@ class Button:
 
     def pressed(self, mouse, click):
         if (self.x <= mouse[0] and mouse[0] <= self.x + self.width) and (self.y <= mouse[1] and mouse[1] <= self.y + self.height) and click[0] == True:
+            pygame.draw.rect(self.root, (0, 0, 0), (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
             return True
         return False
 
@@ -154,6 +155,7 @@ class PlayerDisplay:
                 if self.x + space <= mouse[0] <= self.x + space + self.width and self.y <= mouse[1] <= self.y + self.height:
                     return i
                 space += self.spacing
+
 
 class Dice(Button):
     def __init__(self, root, x, y):

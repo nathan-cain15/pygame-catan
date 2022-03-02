@@ -16,6 +16,7 @@ class Game:
         self.currentState = "starting turns"
         self.currentSubState = "building"
         self.robber = None
+        self.text = None
 
     def placeBuilding(self, player, players, sideLength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
@@ -236,4 +237,123 @@ class Game:
             pressedResource = display.pressed(mouse, click)
             if pressedResource != None:
                 return display, pressedResource
+
+    def drawText(self, color, fontSize, x, y):
+        font = pygame.font.SysFont('Comic Sans MS', fontSize)
+        text = font.render(self.text, False, color)
+        self.root.blit(text, (x, y))
+
+    def longestRoad(self, players):
+        longest = 1
+        playersLongest = 1
+        longestList = []
+
+        for player in players:
+            unconnectedRoads = []
+
+            for checkedRoad in player.roads:
+                point1Checked = False
+                point2Checked = False
+
+                for checkingRoad in player.roads:
+                    if checkingRoad == checkedRoad:
+                        continue
+
+                    if ((checkingRoad.x1 - 5 <= checkedRoad.x1 <= checkingRoad.x1 + 5) and (
+                            checkingRoad.y1 - 5 <= checkedRoad.y1 <= checkingRoad.y1 + 5)) or (
+                            (checkingRoad.x2 - 5 <= checkedRoad.x1 <= checkingRoad.x2 + 5) and (
+                            checkingRoad.y2 - 5 <= checkedRoad.y1 <= checkingRoad.y2 + 5)):
+                        point1Checked = True
+
+                    if ((checkingRoad.x1 - 5 <= checkedRoad.x2 <= checkingRoad.x1 + 5) and (
+                            checkingRoad.y1 - 5 <= checkedRoad.y2 <= checkingRoad.y1 + 5)) or (
+                            (checkingRoad.x2 - 5 <= checkedRoad.x2 <= checkingRoad.x2 + 5) and (
+                            checkingRoad.y2 - 5 <= checkedRoad.y2 <= checkingRoad.y2 + 5)):
+                        point2Checked = True
+
+                    if point1Checked and point2Checked:
+                        break
+                if not (point1Checked and point2Checked) and not (not point1Checked and not point2Checked):
+                    unconnectedRoads.append(checkedRoad)
+
+
+
+            playersLongest = 0
+            checked = []
+            print(unconnectedRoads)
+            for unconnectedRoad in unconnectedRoads:
+                #checkingLongest = 1
+                #playersLongest = 1
+                branchs = []
+                path = []
+                checked.append(unconnectedRoad)
+                path.append(unconnectedRoad)
+                currentRoad = unconnectedRoad
+
+                while True:
+                    numBranchs = 0
+                    for road in player.roads:
+                        if road != currentRoad and road not in checked and road not in path:
+                            if ((currentRoad.x1 - 5 <= road.x1 <= currentRoad.x1 + 5) and (
+                                    currentRoad.y1 - 5 <= road.y1 <= currentRoad.y1 + 5)) or (
+                                    (currentRoad.x2 - 5 <= road.x1 <= currentRoad.x2 + 5) and (
+                                    currentRoad.y2 - 5 <= road.y1 <= currentRoad.y2 + 5)) or (
+                                    (currentRoad.x1 - 5 <= road.x2 <= currentRoad.x1 + 5) and (
+                                    currentRoad.y1 - 5 <= road.y2 <= currentRoad.y1 + 5)) or (
+                                    (currentRoad.x2 - 5 <= road.x2 <= currentRoad.x2 + 5) and (
+                                    currentRoad.y2 - 5 <= road.y2 <= currentRoad.y2 + 5)):
+                                print(currentRoad)
+                                print(road)
+                                numBranchs += 1
+                    print(numBranchs)
+                    if numBranchs == 2:
+                        branchs.append(2)
+                    elif numBranchs == 1:
+                        branchs.append(1)
+                    elif numBranchs == 0:
+                        if len(path) > playersLongest:
+                            playersLongest = len(path)
+
+                        if 2 in branchs:
+                            path = path[0:len(branchs) - 1 - branchs[::-1].index(2)]
+                            branchs = branchs[0:len(branchs) - 1 - branchs[::-1].index(2)]
+                        else:
+                            break
+                    print(branchs)
+
+                    print(path)
+                    for road in player.roads:
+                        if (road != currentRoad) and (road not in path):
+                            if ((currentRoad.x1 - 5 <= road.x1 <= currentRoad.x1 + 5) and (
+                                    currentRoad.y1 - 5 <= road.y1 <= currentRoad.y1 + 5)) or (
+                                    (currentRoad.x2 - 5 <= road.x1 <= currentRoad.x2 + 5) and (
+                                    currentRoad.y2 - 5 <= road.y1 <= currentRoad.y2 + 5)) or (
+                                    (currentRoad.x1 - 5 <= road.x2 <= currentRoad.x1 + 5) and (
+                                    currentRoad.y1 - 5 <= road.y2 <= currentRoad.y1 + 5)) or (
+                                    (currentRoad.x2 - 5 <= road.x2 <= currentRoad.x2 + 5) and (
+                                    currentRoad.y2 - 5 <= road.y2 <= currentRoad.y2 + 5)):
+                                currentRoad = road
+                                checked.append(road)
+                                path.append(road)
+                    print(path)
+
+            longestList.append(playersLongest)
+
+
+        print(longestList)
+        highest = max(longestList)
+        if longestList.count(highest) > 1:
+            return None
+        else:
+            return players[longestList.index(highest)]
+
+
+
+
+
+
+
+
+
+
 

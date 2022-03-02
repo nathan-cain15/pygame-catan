@@ -263,6 +263,8 @@ while run:
     dice.draw(black, white, "roll", 20)
     dice.drawDice(700, 500, 30, 30, black, white, 20, 60, 0.8)
 
+    game.drawText(black, 20, 600, 50)
+
 
     display1.draw(white, 0.8, 20, turnTrue[0])
     display2.draw(white, 0.8, 20, turnTrue[1])
@@ -272,6 +274,7 @@ while run:
 
     if game.currentState == "starting turns":
         if game.currentSubState == "building":
+            game.text = "place building"
             if buildPressed == False:
                 buildPressed = buildButton.pressed(mouse, click)
             if buildPressed:
@@ -284,6 +287,7 @@ while run:
                     buildPressed = False
 
         elif game.currentSubState == "road":
+            game.text = "place road"
             if roadPressed == False:
                 roadPressed = roadButton.pressed(mouse, click)
 
@@ -307,6 +311,7 @@ while run:
 
     if game.currentState == "regular turn":
         if game.currentSubState == "roll":
+            game.text = "roll"
             if dicePressed == False:
                 dicePressed = dice.pressed(mouse, click)
 
@@ -323,6 +328,16 @@ while run:
                 dicePressed = False
 
         elif game.currentSubState == "turn":
+            game.text = "build, trade, or end turn"
+
+
+            print(game.longestRoad(players))
+
+
+            for player in players:
+                if player.victoryPoints >= 10:
+                    game.text = "player " + str(players.index(player) + 1) + " wins!"
+                    game.currentState = "game over"
             if buildPressed == False:
                 buildPressed = buildButton.pressed(mouse, click)
             if buildButton:
@@ -367,6 +382,7 @@ while run:
                 buildCityPressed = False
 
         elif game.currentSubState == "move robber":
+            game.text = "move the robber"
             if tilePressed == None and mouse[0] <= 550:
                 tilePressed = game.tilePressed(mouse, click)
 
@@ -375,7 +391,9 @@ while run:
                 game.checkResources(players)
                 tilePressed = None
                 game.currentSubState = "pick resource"
+
         elif game.currentSubState == "pick resource":
+            game.text = "pick someone's resource"
             if playerDisplayPressed == None:
                 playerDisplayPressed = game.displayPressed(mouse, click, playerDisplays, number)
 
@@ -390,7 +408,9 @@ while run:
                     playerDisplayPressed = None
                     continue
         elif game.currentSubState == "trading":
+            game.text = "trade in 4 resources for one of another"
             cancelButton.draw(black, white, "cancel", 20)
+
             if cancelPressed == False:
                 cancelPressed = cancelButton.pressed(mouse, click)
             if cancelPressed:
@@ -410,19 +430,17 @@ while run:
 
             if ran == None and secondBool == True:
                 ran = playerDisplays[number].pressed(mouse, click)
-                print("check 1")
 
             if ran != None and secondBool == True:
                 if ran != playerDisplayPressed:
                     players[number].resources[ran] += 1
-                    print("check 2")
                     game.currentSubState = "turn"
                     ran = False
                     playerDisplayPressed = None
                     secondBool = False
                 else:
                     ran = None
-                    print("check 3")
+
 
 
 
