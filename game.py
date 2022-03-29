@@ -4,7 +4,7 @@ import random
 from otherclaseses import *
 
 
-
+# the main game class which manages the different actions
 class Game:
     def __init__(self, root, tiles, edges, vertices):
         self.root = root
@@ -18,6 +18,7 @@ class Game:
         self.robber = None
         self.text = None
 
+    # used in the starting turns, checks if a building is valid and returns whether it was placed or not
     def placeBuilding(self, player, players, sideLength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
         if vertice != None:
@@ -32,9 +33,10 @@ class Game:
         else:
             return False
 
+    # used in the starting turns, checks if a road is valid and returns whether it was placed or not
     def placeRoad(self, player, mouse, click):
         edge = self.edgesPressed(mouse, click)
-        if edge != None:
+        if edge is not None:
             if edge not in self.notAvalEdges and self.roadValid(player, edge):
                 player.roads.append(Road(edge.x1, edge.y1, edge.x2, edge.y2, edge.color, player))
                 edge.color = player.color
@@ -42,7 +44,7 @@ class Game:
                 return True
         else:
             return False
-
+    # used in the regular turns, checks if a building is valid and returns whether it was placed or not
     def buildBuilding(self, player, players, sideLength, mouse, click):
         vertice = self.verticesPressed(mouse, click)
         if vertice != None:
@@ -59,6 +61,7 @@ class Game:
         else:
             return False
 
+    # used in the regular turns, checks if a road is valid and returns whether it was placed or not
     def buildRoad(self, player, mouse, click):
         edge = self.edgesPressed(mouse, click)
         if edge != None:
@@ -73,6 +76,7 @@ class Game:
         else:
             return False
 
+    # used in the regular turns, checks if a city is valid and returns whether it was placed or not
     def buildCity(self, player, mouse, click):
         building = self.verticesPressed(mouse, click)
 
@@ -108,6 +112,16 @@ class Game:
                 pygame.draw.polygon(self.root, edge.color, (
                     (edge.x1 - 3, edge.y1), (edge.x2 - 3, edge.y2), (edge.x2 + 3, edge.y2), (edge.x1 + 3, edge.y1)))
 
+    def drawNumbers(self, sidelength):
+        diagonal = math.sqrt(3) * sidelength
+        myfont = pygame.font.SysFont('Comic Sans MS', 20)
+        for tile in self.tiles:
+            if tile.number == 1:
+                continue
+            num = str(tile.number)
+            textsurface = myfont.render(num, False, (0, 0, 0))
+            self.root.blit(textsurface, (tile.x + (diagonal / 2 - 5), tile.y - sidelength + 10))
+
     def verticesPressed(self, mouse, click):
         for vert in self.vertices:
             clicked = vert.pressed(mouse, click)
@@ -135,6 +149,7 @@ class Game:
                     pressedTile = self.tiles[centers.index(center)]
             return pressedTile
 
+    # check if a road is able to be placed
     def roadValid(self, player, road):
         for building in player.buildings:
             if ((building.x - 3 <= road.x1 <= building.x) and (
@@ -154,7 +169,7 @@ class Game:
                 return True
 
         return False
-
+    # check if a buildingis able to be placed
     def buildingValid(self, players, building, sidelength):
         for player in players:
             for build in player.buildings:
@@ -165,6 +180,7 @@ class Game:
                     return False
         return True
 
+    # give resources to a player based on their 2rd settlement
     def getStartingResources(self, vertice, player):
         dictionary = {
             (55, 75, 30): 0,
@@ -181,6 +197,7 @@ class Game:
 
                         player.resources[dictionary[tile.color]] += 1
 
+    # give resources based on what is rolled
     def giveResources(self, dice, players):
         num = dice.die1 + dice.die2
         tilesWithNum = []
@@ -212,6 +229,7 @@ class Game:
             if tile.color == (243, 192, 114):
                 self.robber = Robber(tile, self.root)
 
+    # checks if a player has over seven resources and if so halves it
     def checkResources(self, players):
         for player in players:
             resourceAmount = 0
@@ -243,6 +261,7 @@ class Game:
         text = font.render(self.text, False, color)
         self.root.blit(text, (x, y))
 
+    # calculates the longest road
     def longestRoad(self, players):
         longest = 1
         playersLongest = 1
@@ -276,11 +295,9 @@ class Game:
                 if not (point1Checked and point2Checked) and not (not point1Checked and not point2Checked):
                     unconnectedRoads.append(checkedRoad)
 
-
-
             playersLongest = 0
             checked = []
-            print(unconnectedRoads)
+
             for unconnectedRoad in unconnectedRoads:
                 #checkingLongest = 1
                 #playersLongest = 1
@@ -302,10 +319,9 @@ class Game:
                                     currentRoad.y1 - 5 <= road.y2 <= currentRoad.y1 + 5)) or (
                                     (currentRoad.x2 - 5 <= road.x2 <= currentRoad.x2 + 5) and (
                                     currentRoad.y2 - 5 <= road.y2 <= currentRoad.y2 + 5)):
-                                print(currentRoad)
-                                print(road)
+
                                 numBranchs += 1
-                    print(numBranchs)
+
                     if numBranchs == 2:
                         branchs.append(2)
                     elif numBranchs == 1:
@@ -319,9 +335,7 @@ class Game:
                             branchs = branchs[0:len(branchs) - 1 - branchs[::-1].index(2)]
                         else:
                             break
-                    print(branchs)
 
-                    print(path)
                     for road in player.roads:
                         if (road != currentRoad) and (road not in path):
                             if ((currentRoad.x1 - 5 <= road.x1 <= currentRoad.x1 + 5) and (
@@ -335,25 +349,12 @@ class Game:
                                 currentRoad = road
                                 checked.append(road)
                                 path.append(road)
-                    print(path)
 
             longestList.append(playersLongest)
 
 
-        print(longestList)
         highest = max(longestList)
         if longestList.count(highest) > 1:
             return None
         else:
             return players[longestList.index(highest)]
-
-
-
-
-
-
-
-
-
-
-

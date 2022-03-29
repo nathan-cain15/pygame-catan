@@ -23,7 +23,7 @@ playerBrown = (161, 106, 92)
 playerOrange = (236, 102, 7)
 
 
-
+#these are the functions needed to make the game board and pass into the game class
 
 def getPoints(tiltAngle, x, y, radius):
     pts = []
@@ -33,6 +33,7 @@ def getPoints(tiltAngle, x, y, radius):
         pts.append([int(x), int(y)])
     return pts
 
+# randomize the order of the tile colors
 def randomColors(numOfLightGreen, numOfDarkGreen, numOfRed, numOfYellow, numOfGrey, numOfTan):
 
     lst = []
@@ -58,6 +59,7 @@ def randomColors(numOfLightGreen, numOfDarkGreen, numOfRed, numOfYellow, numOfGr
         randomList.append(randomColor)
     return randomList
 
+# randomize the tile numbers
 def generateNumbers(tiles):
     numbers = [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9]
 
@@ -75,7 +77,6 @@ def generateNumbers(tiles):
                 continue
             num += 1
     return tiles
-
 
 def makeTiles(x, y, sideLength):
     tiles = []
@@ -175,21 +176,11 @@ def makeEdges(tiles):
         edgeList.append(Edge(edge[0][0], edge[0][1], edge[1][0], edge[1][1], white))
     return edgeList
 
-def drawNumbers(tiles, sidelength):
-    diagonal = math.sqrt(3) * sidelength
-    myfont = pygame.font.SysFont('Comic Sans MS', 20)
-    for tile in tiles:
-        if tile.number == 1:
-            continue
-        num = str(tile.number)
-        textsurface = myfont.render(num, False, (0, 0, 0))
-        root.blit(textsurface, (tile.x + (diagonal/2 - 5), tile.y - sidelength + 10))
-
-
 
 sideLength = 60
 first = True
 run = True
+
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -200,7 +191,7 @@ while run:
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
 
-
+    # game set up that occurs on the first run
     if first == True:
         tiles = makeTiles(-80, 130, sideLength)
         vertices = makeVertices(tiles, 10, 10)
@@ -248,13 +239,14 @@ while run:
     turnTrue[number] = True
 
     game.drawTiles()
-    drawNumbers(tiles, sideLength)
+    game.drawNumbers(60)
     game.drawEdges()
     game.drawVertices()
 
     if game.robber.tile != None:
         game.robber.draw(sideLength, 15)
 
+    # draw the different buttons
     buildButton.draw(black, white, "build settlement", 20)
     roadButton.draw(black, white, "build road", 20)
     buildCityButton.draw(black, white, "build city", 20)
@@ -265,13 +257,13 @@ while run:
 
     game.drawText(black, 20, 600, 50)
 
-
+    # draw the player displays
     display1.draw(white, 0.8, 20, turnTrue[0])
     display2.draw(white, 0.8, 20, turnTrue[1])
     display3.draw(white, 0.8, 20, turnTrue[2])
     display4.draw(white, 0.8, 20, turnTrue[3])
 
-
+    # manage the starting state for when players are placing their settlements and roads
     if game.currentState == "starting turns":
         if game.currentSubState == "building":
             game.text = "place building"
@@ -308,7 +300,7 @@ while run:
                     else:
                         number += 1
 
-
+    # manage the states for regular turns
     if game.currentState == "regular turn":
         if game.currentSubState == "roll":
             game.text = "roll"
@@ -329,10 +321,6 @@ while run:
 
         elif game.currentSubState == "turn":
             game.text = "build, trade, or end turn"
-
-
-            print(game.longestRoad(players))
-
 
             for player in players:
                 if player.victoryPoints >= 10:
@@ -440,16 +428,5 @@ while run:
                     secondBool = False
                 else:
                     ran = None
-
-
-
-
-
-
-
-
-    #print(game.currentSubState)
-
-
 
     pygame.display.flip()
