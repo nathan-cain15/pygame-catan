@@ -80,7 +80,7 @@ class Game:
     def buildCity(self, player, mouse, click):
         building = self.verticesPressed(mouse, click)
 
-        if building != None:# and player.resources[3] >= 2 and player.resources[4] >= 3:
+        if building != None and player.resources[3] >= 2 and player.resources[4] >= 3:
             for settlement in player.buildings:
                 if building.x == settlement.x and building.y == settlement.y:
                     player.cities.append(settlement)
