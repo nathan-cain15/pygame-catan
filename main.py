@@ -4,6 +4,7 @@ import pygame
 from game import *
 from otherclaseses import *
 
+# this file include's basic set up and helper functions along with the main game loop
 
 pygame.init()
 root = pygame.display.set_mode((900, 600))
